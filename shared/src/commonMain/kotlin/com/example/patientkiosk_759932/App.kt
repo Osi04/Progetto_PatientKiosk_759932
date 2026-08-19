@@ -19,11 +19,17 @@ import org.jetbrains.compose.resources.painterResource
 import patientkiosk_759932.shared.generated.resources.Res
 import patientkiosk_759932.shared.generated.resources.compose_multiplatform
 
+//Classi momentaneo
+data class Question(
+    val id: String,
+    val text: String
+)
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
+        val testQuestion = remember {Question(id = "q1", text = "Domanda numero 1")}
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primaryContainer)
@@ -35,13 +41,12 @@ fun App() {
                 Text("Click me!")
             }
             AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+                    Text(testQuestion.text)
                 }
             }
         }

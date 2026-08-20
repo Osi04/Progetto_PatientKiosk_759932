@@ -4,14 +4,15 @@ import androidx.compose.runtime.MutableState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.collections.emptyMap
 
 class QuestionnaireViewModel(private val struct: QuestionnaireStruct) {
     val questions = struct.getQuestions()
 
-    private val _selectedAnswer = MutableStateFlow<String?>(null)
-    val selectedAnswer: StateFlow<String?> = _selectedAnswer.asStateFlow()
+    private val _selectedAnswer = MutableStateFlow<Map<String, Any>>(emptyMap())
+    val selectedAnswer: StateFlow<Map<String, Any>> = _selectedAnswer.asStateFlow()
 
-    fun selectAnswer(answer: String){
-        _selectedAnswer.value=answer
+    fun selectAnswer(questionId: String, answer: Any){
+        _selectedAnswer.value= _selectedAnswer.value.toMutableMap().apply { put(questionId,answer) }
     }
 }

@@ -7,7 +7,8 @@ interface QuestionnaireStruct {
 class TestQuestionnaireStruct : QuestionnaireStruct{
     override fun getQuestions(): List<Question> {
         return listOf(
-            Question("q1","Domanda numero 1")
+            MultipleChoiceQuestion("q1","Domanda numero 1", listOf("Moltissimo", "Molto", "Un po'", "Poco", "Per nulla")),
+            ScaleQuestion("q2","Domanda numero 2", 1, 10 )
         )
     }
 }

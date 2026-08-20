@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -31,10 +32,24 @@ import patientkiosk_759932.shared.generated.resources.Res
 import patientkiosk_759932.shared.generated.resources.compose_multiplatform
 
 //Classi momentaneo
-data class Question(
-    val id: String,
-    val text: String
-)
+sealed class Question {
+    abstract val id: String
+    abstract val text: String
+}
+
+data class MultipleChoiceQuestion(
+    override val id: String,
+    override val text: String,
+    val options: List<String>
+) : Question()
+
+data class ScaleQuestion(
+    override val id: String,
+    override val text: String,
+    val min: Int,
+    val max: Int
+) : Question()
+
 @Composable
 @Preview
 fun App() {
@@ -59,22 +74,39 @@ fun App() {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(text=viewModel.questions.first().text,
-                 fontSize = 18.sp)
-            testAnswers.forEach { answer ->
-                Row (
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                    modifier = Modifier
-                        .clickable {viewModel.selectAnswer(answer)}
-                        .fillMaxWidth()
-                        .padding(4.dp)
-                ) {
-                    RadioButton(
-                        selected = (selectedAnswer==answer),
-                        onClick = {viewModel.selectAnswer(answer)}
-                    )
-                    Text(text = answer)
-                  }
+            viewModel.questions.forEach { question ->
+                Text(text = question.text)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                when (question) {
+                    is MultipleChoiceQuestion -> {
+                        question.options.forEach { option ->
+                            Row (
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clickable {viewModel.selectAnswer(question.id,option)}
+                                    .fillMaxWidth()
+                                    .padding(4.dp)
+                            ) {
+                                RadioButton(
+                                    selected = (selectedAnswer[question.id]==option),
+                                    onClick = {viewModel.selectAnswer(question.id,option)}
+                                )
+                                Text(text = option)
+                        }
+                    }
+                }
+                    is ScaleQuestion -> {
+                        val currentValue = (selectedAnswer[question.id] as? Float) ?: question.min.toFloat()
+                        Slider(
+                            value = currentValue,
+                            onValueChange = {viewModel.selectAnswer(question.id,it)},
+                            valueRange = question.min.toFloat()..question.max.toFloat(),
+                            steps = (question.max - question.min) - 1
+                        )
+                        Text("Valore: ${currentValue.toInt()}")
+                    }
+                }
             }
         }
     }

@@ -17,6 +17,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -38,12 +40,12 @@ data class Question(
 fun App() {
     MaterialTheme {
         //Domanda hardcoded
-        val testQuestion = remember {Question(id = "q1", text = "Domanda numero 1")}
+        val struct = remember { TestQuestionnaireStruct()}
+        val viewModel = remember { QuestionnaireViewModel(struct) }
         //Possibili Risposte Hardcoded
         val testAnswers = listOf("Moltissimo", "Molto", "Un po'", "Poco", "Per nulla")
         //Rispsota selezionata (Stato) tra le possibili
-        var selectedAnswer by remember { mutableStateOf<String?>(null) }
-
+        val selectedAnswer by viewModel.selectedAnswer.collectAsState()
 
         Column(
             modifier = Modifier
@@ -57,21 +59,21 @@ fun App() {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(text=testQuestion.text,
+            Text(text=viewModel.questions.first().text,
                  fontSize = 18.sp)
-            testAnswers.forEach { answers ->
+            testAnswers.forEach { answer ->
                 Row (
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                     modifier = Modifier
-                        .clickable {selectedAnswer=answers}
+                        .clickable {viewModel.selectAnswer(answer)}
                         .fillMaxWidth()
                         .padding(4.dp)
                 ) {
                     RadioButton(
-                        selected = (selectedAnswer==answers),
-                        onClick = {selectedAnswer=answers}
+                        selected = (selectedAnswer==answer),
+                        onClick = {viewModel.selectAnswer(answer)}
                     )
-                    Text(text = answers)
+                    Text(text = answer)
                   }
             }
         }
